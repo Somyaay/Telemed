@@ -22,8 +22,8 @@
   </style>
 </head>
 <!--
-written By : sumit kumar
-facebook : fb.com/sumit.luv
+written By : Somya
+facebook : fb.com/Somya.luv
 -->
 <div class="container">
   <div class="panel panel-primary">
@@ -47,7 +47,13 @@ facebook : fb.com/sumit.luv
       <tr>
 
         <td> {{d.get_name}}</td>
-        <td> <img src="{% static d.profile_pic.url %}" alt="Profile Pic" height="40px" width="40px" /></td>
+        <td>
+          {% if d.profile_pic %}
+            <img src="{% static d.profile_pic.url %}" alt="Profile Pic" height="40px" width="40px" />
+          {% else %}
+            <img src="{% static 'images/doctor-default.png' %}" alt="Default Profile Pic" height="40px" width="40px" />
+          {% endif %}
+        </td>
         <td>{{d.mobile}}</td>
         <td>{{d.address}}</td>
         <td>{{d.department}}</td>
@@ -59,9 +65,9 @@ facebook : fb.com/sumit.luv
   </div>
 </div>
 <!--
-developed By : sumit kumar
-facebook : fb.com/sumit.luv
-youtube : youtube.com/lazycoders
+developed By : Somya
+facebook : fb.com/Somya.luv
+youtube : youtube.com/Somyas
 -->
 
 {% endblock content %}

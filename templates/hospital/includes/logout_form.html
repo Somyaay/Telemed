@@ -1,0 +1,5 @@
+{% load static %}
+<form id="logoutForm" method="post" action="{% url 'logout' %}" style="display: inline;">
+  {% csrf_token %}
+  <a href="#" onclick="document.getElementById('logoutForm').submit(); return false;" class="nav-item nav-link">Logout</a>
+</form>

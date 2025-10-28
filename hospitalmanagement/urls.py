@@ -1,8 +1,8 @@
 """
 
-Developed By : sumit kumar
-facebook : fb.com/sumit.luv
-Youtube :youtube.com/lazycoders
+Developed By : Somya
+facebook : fb.com/Somya.luv
+Youtube :youtube.com/Somyas
 
 
 """
@@ -109,6 +109,6 @@ urlpatterns +=[
 
 ]
 
-#Developed By : sumit kumar
-#facebook : fb.com/sumit.luv
-#Youtube :youtube.com/lazycoders
+#Developed By : Somya
+#facebook : fb.com/Somya.luv
+#Youtube :youtube.com/Somyas

@@ -16,21 +16,21 @@ def home_view(request):
     return render(request,'hospital/index.html')
 
 
-#for showing signup/login button for admin(by sumit)
+#for showing signup/login button for admin(by Somya)
 def adminclick_view(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('afterlogin')
     return render(request,'hospital/adminclick.html')
 
 
-#for showing signup/login button for doctor(by sumit)
+#for showing signup/login button for doctor(by Somya)
 def doctorclick_view(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('afterlogin')
     return render(request,'hospital/doctorclick.html')
 
 
-#for showing signup/login button for patient(by sumit)
+#for showing signup/login button for patient(by Somya)
 def patientclick_view(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('afterlogin')
@@ -88,8 +88,14 @@ def patient_signup_view(request):
             user.save()
             patient=patientForm.save(commit=False)
             patient.user=user
-            patient.assignedDoctorId=request.POST.get('assignedDoctorId')
-            patient=patient.save()
+            sel_doctor_id = request.POST.get('assignedDoctorId')
+            if sel_doctor_id:
+                try:
+                    sel_doc = models.Doctor.objects.get(id=sel_doctor_id)
+                    patient.assignedDoctorId = sel_doc.user_id
+                except models.Doctor.DoesNotExist:
+                    patient.assignedDoctorId = None
+            patient.save()
             my_patient_group = Group.objects.get_or_create(name='PATIENT')
             my_patient_group[0].user_set.add(user)
         return HttpResponseRedirect('patientlogin')
@@ -100,7 +106,7 @@ def patient_signup_view(request):
 
 
 
-#-----------for checking user is doctor , patient or admin(by sumit)
+#-----------for checking user is doctor , patient or admin(by Somya)
 def is_admin(user):
     return user.groups.filter(name='ADMIN').exists()
 def is_doctor(user):
@@ -324,7 +330,13 @@ def update_patient_view(request,pk):
             user.save()
             patient=patientForm.save(commit=False)
             patient.status=True
-            patient.assignedDoctorId=request.POST.get('assignedDoctorId')
+            sel_doctor_id = request.POST.get('assignedDoctorId')
+            if sel_doctor_id:
+                try:
+                    sel_doc = models.Doctor.objects.get(id=sel_doctor_id)
+                    patient.assignedDoctorId = sel_doc.user_id
+                except models.Doctor.DoesNotExist:
+                    patient.assignedDoctorId = None
             patient.save()
             return redirect('admin-view-patient')
     return render(request,'hospital/admin_update_patient.html',context=mydict)
@@ -350,7 +362,13 @@ def admin_add_patient_view(request):
             patient=patientForm.save(commit=False)
             patient.user=user
             patient.status=True
-            patient.assignedDoctorId=request.POST.get('assignedDoctorId')
+            sel_doctor_id = request.POST.get('assignedDoctorId')
+            if sel_doctor_id:
+                try:
+                    sel_doc = models.Doctor.objects.get(id=sel_doctor_id)
+                    patient.assignedDoctorId = sel_doc.user_id
+                except models.Doctor.DoesNotExist:
+                    patient.assignedDoctorId = None
             patient.save()
 
             my_patient_group = Group.objects.get_or_create(name='PATIENT')
@@ -515,10 +533,23 @@ def admin_add_appointment_view(request):
         appointmentForm=forms.AppointmentForm(request.POST)
         if appointmentForm.is_valid():
             appointment=appointmentForm.save(commit=False)
-            appointment.doctorId=request.POST.get('doctorId')
-            appointment.patientId=request.POST.get('patientId')
-            appointment.doctorName=models.User.objects.get(id=request.POST.get('doctorId')).first_name
-            appointment.patientName=models.User.objects.get(id=request.POST.get('patientId')).first_name
+            sel_doc_id = request.POST.get('doctorId')
+            sel_patient_id = request.POST.get('patientId')
+            if sel_doc_id:
+                try:
+                    sel_doc = models.Doctor.objects.get(id=sel_doc_id)
+                    appointment.doctorId = sel_doc.user_id
+                    appointment.doctorName = sel_doc.user.first_name
+                except models.Doctor.DoesNotExist:
+                    appointment.doctorId = None
+                    appointment.doctorName = ''
+            if sel_patient_id:
+                try:
+                    appointment.patientId = sel_patient_id
+                    appointment.patientName = models.User.objects.get(id=sel_patient_id).first_name
+                except models.User.DoesNotExist:
+                    appointment.patientId = None
+                    appointment.patientName = ''
             appointment.status=True
             appointment.save()
         return HttpResponseRedirect('admin-view-appointment')
@@ -729,16 +760,24 @@ def patient_book_appointment_view(request):
     if request.method=='POST':
         appointmentForm=forms.PatientAppointmentForm(request.POST)
         if appointmentForm.is_valid():
-            print(request.POST.get('doctorId'))
-            desc=request.POST.get('description')
+            sel_doc_id = request.POST.get('doctorId')
+            desc = request.POST.get('description')
+            sel_doc = None
+            if sel_doc_id:
+                try:
+                    sel_doc = models.Doctor.objects.get(id=sel_doc_id)
+                except models.Doctor.DoesNotExist:
+                    sel_doc = None
 
-            doctor=models.Doctor.objects.get(user_id=request.POST.get('doctorId'))
-            
             appointment=appointmentForm.save(commit=False)
-            appointment.doctorId=request.POST.get('doctorId')
-            appointment.patientId=request.user.id #----user can choose any patient but only their info will be stored
-            appointment.doctorName=models.User.objects.get(id=request.POST.get('doctorId')).first_name
-            appointment.patientName=request.user.first_name #----user can choose any patient but only their info will be stored
+            if sel_doc:
+                appointment.doctorId = sel_doc.user_id
+                appointment.doctorName = sel_doc.user.first_name
+            else:
+                appointment.doctorId = None
+                appointment.doctorName = ''
+            appointment.patientId=request.user.id # user booking; store user's id
+            appointment.patientName=request.user.first_name
             appointment.status=False
             appointment.save()
         return HttpResponseRedirect('patient-view-appointment')
@@ -843,6 +882,4 @@ def contactus_view(request):
 
 
 
-#Developed By : sumit kumar
-#facebook : fb.com/sumit.luv
-#Youtube :youtube.com/lazycoders
+#Developed By : Somya

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
         'hospital',
         'widget_tweaks',
+        'django_extensions',
 ]
 
 MIDDLEWARE = [
